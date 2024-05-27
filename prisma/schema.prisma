@@ -21,6 +21,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  role          Role      @default(USER)
   Account       Account?
 
   createdAt DateTime @default(now())
@@ -48,4 +49,9 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+}
+
+enum Role {
+  ADMIN
+  USER
 }

@@ -20,8 +20,14 @@ import { Button } from "../ui/button";
 import { FormErrors } from "../form-errors";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
+import { useSearchParams } from "next/navigation";
 
 export const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already use in different provider!"
+      : "";
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -41,8 +47,8 @@ export const LoginForm = () => {
 
     startTransition(() => {
       login(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.message);
+        setError(data?.error);
+        setSuccess(data?.message);
       });
     });
   };
@@ -94,7 +100,7 @@ export const LoginForm = () => {
               )}
             />
           </div>
-          <FormErrors message={error} />
+          <FormErrors message={error || urlError} />
           <FormSuccess message={success} />
           <Button className="w-full" type="submit">
             Login
