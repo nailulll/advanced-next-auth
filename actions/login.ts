@@ -1,6 +1,8 @@
 "use server";
 
 import { signIn } from "@/auth";
+import { getUserByEmail } from "@/data/user";
+import { generateToken } from "@/lib/tokens";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { loginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
@@ -14,6 +16,17 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
   }
 
   const { email, password } = validateFields.data;
+
+  const user = await getUserByEmail(email);
+
+  if (!user || !user.email || !user.password) {
+    return { error: "Invalid credentials!" };
+  }
+
+  if (!user.emailVerified) {
+    await generateToken(user.email);
+    return { success: "Confirmation email sent!" };
+  }
 
   try {
     await signIn("credentials", {
